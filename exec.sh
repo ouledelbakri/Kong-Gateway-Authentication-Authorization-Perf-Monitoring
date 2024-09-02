@@ -5,6 +5,7 @@ set -e
 
 # setup kong
 docker-compose build kong
+
 sleep 2
 docker-compose up -d kong-db
 sleep 2
