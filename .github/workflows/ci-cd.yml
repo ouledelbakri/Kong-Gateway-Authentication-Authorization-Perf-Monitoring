@@ -26,7 +26,7 @@ jobs:
 
     - name: Build and run Docker Compose with tests
       run: |
-        chmod +x start.sh
-        ./start.sh
+        chmod +x exec.sh
+        ./exec.sh
       env:
         DOCKER_BUILDKIT: 1
