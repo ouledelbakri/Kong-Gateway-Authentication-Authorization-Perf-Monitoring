@@ -24,9 +24,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y docker-compose
 
-    - name: Build and run Docker Compose
+    - name: Build and run Docker Compose with tests
       run: |
-        chmod +x exec.sh
-        ./exec.sh
+        chmod +x start.sh
+        ./start.sh
       env:
         DOCKER_BUILDKIT: 1

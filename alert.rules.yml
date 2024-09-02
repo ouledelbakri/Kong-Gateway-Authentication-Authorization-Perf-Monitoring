@@ -1,13 +1,11 @@
 groups:
-- name: alert.rules
-  rules:
+  - name: example
+    rules:
     - alert: InstanceDown
       expr: up == 0
       for: 1m
       labels:
         severity: critical
       annotations:
-        summary: 'Endpoint {{ $labels.instance }} down'
-        description: >-
-          {{ $labels.instance }} of job {{ $labels.job }} has been down for
-          more than 1 minutes.
+        summary: "Instance {{ $labels.instance }} down"
+        description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
