@@ -24,20 +24,3 @@ sleep 2m
 docker-compose up -d keycloak-db
 docker-compose up -d keycloak
 docker-compose ps
-
-# Test liveness for Konga
-curl -v http://localhost:1337
-
-# Test liveness for Keycloak
-curl -v http://localhost:8180
-
-# setup prometheus and grafana
-docker-compose up -d prometheus
-docker-compose up -d grafana
-docker-compose ps
-
-# Test liveness for Prometheus
-curl -v http://localhost:9090
-
-# Test liveness for Grafana
-curl -v http://localhost:3000
