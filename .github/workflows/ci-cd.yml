@@ -16,7 +16,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Docker
+    - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
     - name: Install Docker Compose
@@ -24,21 +24,23 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y docker-compose
 
-    - name: Build and start services with Docker Compose
-      run: docker-compose up -d --build
+    - name: Build Docker Image
+      run: docker build . -t kong-oidc:latest
 
-    - name: Wait for services to be ready
+    - name: Run Docker Compose
+      run: docker-compose up -d
+
+    - name: Run Tests
       run: |
-        echo "Waiting for services to be ready..."
-        sleep 30 # Attends 30 secondes pour que les services soient prêts
+        chmod +x exec.sh
+        ./exec.sh
 
-    - name: Run tests
-      run: |
-        # Ici tu peux exécuter tes tests spécifiques, par exemple:
-        # docker-compose exec <service-name> <test-command>
-        echo "Running tests..."
-        # Exemple:
-        # docker-compose exec kong curl -s http://localhost:8000 | grep 'kong'
+    - name: Push Docker Image to Docker Hub
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: docker push kong-oidc:latest
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Shut down services
+    - name: Clean up Docker
       run: docker-compose down
