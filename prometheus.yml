@@ -14,12 +14,11 @@ alerting:
 
 scrape_configs:
   - job_name: 'kong'
-    scrape_interval: 5s
+    scrape_interval: 15s
     metrics_path: /metrics
     honor_labels: false
     honor_timestamps: true
     sample_limit: 0
     static_configs:
-      - targets:
-          - 'prometheus:9090'  # Endpoint de Prometheus pour le monitoring interne
-          - 'kong:8001'        # Endpoint de l'API Admin de Kong pour récupérer les métriques
+      - targets: ['prometheus:9090'] # Endpoint de Prometheus pour le monitoring interne
+      - targets: ['kong:8001']        # Endpoint de l'API Admin de Kong pour récupérer les métriques

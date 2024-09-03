@@ -46,6 +46,13 @@ services:
       KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
       KONG_PLUGINS:          bundled,oidc
       KONG_LOG_LEVEL:        debug
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    
     networks:
       - kong-net
     ports:

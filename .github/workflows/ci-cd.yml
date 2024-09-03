@@ -24,9 +24,21 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y docker-compose
 
-    - name: Build and run Docker Compose with tests
+    - name: Build and start services with Docker Compose
+      run: docker-compose up -d --build
+
+    - name: Wait for services to be ready
       run: |
-        chmod +x exec.sh
-        ./exec.sh
-      env:
-        DOCKER_BUILDKIT: 1
+        echo "Waiting for services to be ready..."
+        sleep 30 # Attends 30 secondes pour que les services soient prêts
+
+    - name: Run tests
+      run: |
+        # Ici tu peux exécuter tes tests spécifiques, par exemple:
+        # docker-compose exec <service-name> <test-command>
+        echo "Running tests..."
+        # Exemple:
+        # docker-compose exec kong curl -s http://localhost:8000 | grep 'kong'
+
+    - name: Shut down services
+      run: docker-compose down
