@@ -33,11 +33,28 @@ jobs:
 
     - name: Run tests
       run: |
-        # Ici tu peux exécuter tes tests spécifiques, par exemple:
-        # docker-compose exec <service-name> <test-command>
         echo "Running tests..."
-        # Exemple:
-        # docker-compose exec kong curl -s http://localhost:8000 | grep 'kong'
+
+        # Test 1: Vérification que Kong est en cours d'exécution et répond sur le port 8000
+        echo "Testing Kong API Gateway..."
+        docker-compose exec -T kong curl -s http://localhost:8000 | grep 'kong'
+
+        # Test 2: Vérification que la base de données Postgres pour Kong est accessible
+        echo "Testing Postgres database for Kong..."
+        docker-compose exec -T kong-db psql -U kong -d kong -c '\l'
+
+        # Test 3: Vérification que Keycloak est en cours d'exécution et répond sur le port 8080
+        echo "Testing Keycloak..."
+        docker-compose exec -T keycloak curl -s http://localhost:8080 | grep 'Keycloak'
+
+        # Test 4: Vérification que Prometheus est accessible sur le port 9090
+        echo "Testing Prometheus..."
+        docker-compose exec -T prometheus curl -s http://localhost:9090 | grep 'Prometheus'
+
+        # Test 5: Vérification que Grafana est accessible sur le port 3000
+        echo "Testing Grafana..."
+        docker-compose exec -T grafana curl -s http://localhost:3000/login | grep 'Grafana'
+
 
     - name: Shut down services
       run: docker-compose down
