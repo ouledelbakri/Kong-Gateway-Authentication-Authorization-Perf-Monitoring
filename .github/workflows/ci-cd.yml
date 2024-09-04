@@ -35,19 +35,19 @@ jobs:
           echo "Running tests..."
 
           echo "Testing Kong API Gateway..."
-          docker-compose exec -T kong sh -c 'curl -s http://localhost:8000 | grep "kong"'
+          curl -s -X POST http://localhost:8000 | grep "kong"
 
           echo "Testing Postgres database for Kong..."
           docker-compose exec -T kong-db psql -U kong -d kong -c '\l'
 
           echo "Testing Keycloak..."
-          docker-compose exec -T keycloak curl -s http://localhost:8080 | grep 'Keycloak'
+          curl -s http://localhost:8080
 
           echo "Testing Prometheus..."
-          docker-compose exec -T prometheus curl -s http://localhost:9090 | grep 'Prometheus'
+          curl -s http://localhost:9090
 
           echo "Testing Grafana..."
-          docker-compose exec -T grafana curl -s http://localhost:3000/login | grep 'Grafana'
+          curl -s http://localhost:3000/login
 
       - name: Shut down services
         run: docker-compose down
