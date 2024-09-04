@@ -108,3 +108,25 @@ jobs:
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+    - name: Run OWASP ZAP scan
+      uses: zaproxy/action-full-scan@v0.4.0
+      with:
+        target: 'http://localhost:8000'
+
+# ---------------- Clean up --------------------
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [security-scan]
+    if: always()
+    steps:
+    - name: Cleanup
+      run: |
+        docker-compose down
+        docker system prune -af
