@@ -11,43 +11,84 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v2
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
 
-      - name: Build and run Docker Compose with Logs
-        run: |
-          chmod +x exec.sh
-          ./exec.sh
-        env:
-          DOCKER_BUILDKIT: 1
+    - name: Build and run Docker Compose with tests
+      run: |
+        chmod +x exec.sh
+        ./exec.sh
+      env:
+        DOCKER_BUILDKIT: 1
 
-      - name: Run tests
-        run: |
-          echo "Running tests..."
+    - name: Lint code base
+      run: |
+        echo "Running ESLint..."
+        npm install
+        npx eslint . --ext .js,.ts
 
-          echo "Testing Kong API Gateway..."
-          curl -s -X POST http://localhost:8000 | grep "kong"
+    - name: Run tests
+      run: |
+        echo "Running tests..."
 
-          echo "Testing Postgres database for Kong..."
-          docker-compose exec -T kong-db psql -U kong -d kong -c '\l'
+        # Test 1: Vérification que Kong est en cours d'exécution et répond sur le port 8000
+        echo "Testing Kong API Gateway..."
+        for i in {1..5}; do
+          if docker-compose exec -T kong curl -s http://localhost:8000 | grep 'kong'; then
+            echo "Kong is up and running!"
+            break
+          else
+            echo "Kong is not ready yet, retrying in 5 seconds..."
+            sleep 5
+          fi
+        done
 
-          echo "Testing Keycloak..."
-          curl -s http://localhost:8080
+        # Test 2: Vérification que la base de données Postgres pour Kong est accessible
+        echo "Testing Postgres database for Kong..."
+        docker-compose exec -T kong-db psql -U kong -d kong -c '\l'
 
-          echo "Testing Prometheus..."
-          curl -s http://localhost:9090
+        # Test 3: Vérification que Keycloak est en cours d'exécution et répond sur le port 8080
+        echo "Testing Keycloak..."
+        docker-compose exec -T keycloak curl -s http://localhost:8080 | grep 'Keycloak'
 
-          echo "Testing Grafana..."
-          curl -s http://localhost:3000/login
+        # Test 4: Vérification que Prometheus est accessible sur le port 9090
+        echo "Testing Prometheus..."
+        docker-compose exec -T prometheus curl -s http://localhost:9090 | grep 'Prometheus'
 
-      - name: Shut down services
-        run: docker-compose down
+        # Test 5: Vérification que Grafana est accessible sur le port 3000
+        echo "Testing Grafana..."
+        docker-compose exec -T grafana curl -s http://localhost:3000/login | grep 'Grafana'
+
+    - name: Scan Docker Images for Vulnerabilities
+      run: |
+        echo "Running security scan with Trivy..."
+        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image kong-oidc:latest
+
+    - name: Run End-to-End Tests
+      run: |
+        echo "Running End-to-End tests..."
+        # Exemple: npx cypress run (si vous utilisez Cypress)
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Deploy to Staging
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        echo "Deploying to staging environment..."
+        # Commandes pour déployer sur un serveur de staging
