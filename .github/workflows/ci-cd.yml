@@ -22,7 +22,7 @@ jobs:
   # Job de build et test, dépend de 'setup'
   build-and-test:
     runs-on: ubuntu-latest
-    needs: setup  # Ce job attend que 'setup' soit terminé
+    needs: setup  
 
     steps:
     - name: Checkout code
@@ -33,6 +33,7 @@ jobs:
 
     - name: Build and run Docker Compose with tests
       run: |
+        echo "Setup Job alredy finished."
         chmod +x exec.sh
         ./exec.sh
       env:
@@ -112,7 +113,7 @@ jobs:
   # Job de nettoyage, dépend de 'security-scan'
   cleanup:
     runs-on: ubuntu-latest
-    needs: security-scan
+    needs: setup
     if: always()
     steps:
     - name: Cleanup
