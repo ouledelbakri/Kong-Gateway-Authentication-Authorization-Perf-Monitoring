@@ -11,50 +11,43 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v2
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
 
-    - name: Install Docker Compose
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y docker-compose
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
-    - name: Build and run Docker Compose with Logs
-      run: |
-        chmod +x exec.sh
-        ./exec.sh
-      env:
-        DOCKER_BUILDKIT: 1
+      - name: Build and run Docker Compose with Logs
+        run: |
+          chmod +x exec.sh
+          ./exec.sh
+        env:
+          DOCKER_BUILDKIT: 1
 
-    - name: Run tests
-      run: |
-        echo "Running tests..."
+      - name: Run tests
+        run: |
+          echo "Running tests..."
 
-        # Test 1: Vérification que Kong est en cours d'exécution et répond sur le port 8000
-        echo "Testing Kong API Gateway..."
-        docker-compose exec -T kong curl -s http://localhost:8000 | grep 'kong'
+          echo "Testing Kong API Gateway..."
+          docker-compose exec -T kong sh -c 'curl -s http://localhost:8000 | grep "kong"'
 
-        # Test 2: Vérification que la base de données Postgres pour Kong est accessible
-        echo "Testing Postgres database for Kong..."
-        docker-compose exec -T kong-db psql -U kong -d kong -c '\l'
+          echo "Testing Postgres database for Kong..."
+          docker-compose exec -T kong-db psql -U kong -d kong -c '\l'
 
-        # Test 3: Vérification que Keycloak est en cours d'exécution et répond sur le port 8080
-        echo "Testing Keycloak..."
-        docker-compose exec -T keycloak curl -s http://localhost:8080 | grep 'Keycloak'
+          echo "Testing Keycloak..."
+          docker-compose exec -T keycloak curl -s http://localhost:8080 | grep 'Keycloak'
 
-        # Test 4: Vérification que Prometheus est accessible sur le port 9090
-        echo "Testing Prometheus..."
-        docker-compose exec -T prometheus curl -s http://localhost:9090 | grep 'Prometheus'
+          echo "Testing Prometheus..."
+          docker-compose exec -T prometheus curl -s http://localhost:9090 | grep 'Prometheus'
 
-        # Test 5: Vérification que Grafana est accessible sur le port 3000
-        echo "Testing Grafana..."
-        docker-compose exec -T grafana curl -s http://localhost:3000/login | grep 'Grafana'
+          echo "Testing Grafana..."
+          docker-compose exec -T grafana curl -s http://localhost:3000/login | grep 'Grafana'
 
-
-    - name: Shut down services
-      run: docker-compose down
+      - name: Shut down services
+        run: docker-compose down
