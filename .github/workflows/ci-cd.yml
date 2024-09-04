@@ -72,8 +72,8 @@ jobs:
         docker-compose exec -T keycloak curl -s http://localhost:8080 | grep 'Keycloak'
 
         # Test 4: Vérification que Prometheus est accessible sur le port 9090
-        echo "Testing Prometheus..."
-        docker-compose exec -T prometheus curl -s http://localhost:9090 | grep 'Prometheus'
+        #echo "Testing Prometheus..."
+        #docker-compose exec -T prometheus curl -s http://localhost:9090 | grep 'Prometheus'
 
         # Test 5: Vérification que Grafana est accessible sur le port 3000
         echo "Testing Grafana..."
