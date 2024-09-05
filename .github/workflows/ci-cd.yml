@@ -123,6 +123,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
+
   # Job de scan de sécurité, dépend de 'deploy'
   security-scan:
     runs-on: ubuntu-latest
@@ -135,7 +136,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Pull OWASP ZAP Docker Image
-        run: docker pull owasp/zap2docker-weekly  # Correction de l'image
+        run: docker pull owasp/zap2docker-stable  # Utilisation de l'image stable
 
       - name: Run OWASP ZAP scan
         uses: zaproxy/action-full-scan@v0.4.0
