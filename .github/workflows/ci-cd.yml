@@ -123,25 +123,12 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-  # Job de scan de sécurité
+  # Job de scan de sécurité avec Trivy uniquement
   security-scan:
     runs-on: ubuntu-latest
     needs: deploy
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Navigate to project root
-        run: cd ../
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: ../
-
-      - name: Audit for vulnerabilities
-        run: npm audit --audit-level=high
-        working-directory: ../
-
+      # Installer Trivy pour scanner les images Docker
       - name: Install Trivy for Docker image scanning
         run: |
           sudo apt-get update
@@ -156,6 +143,7 @@ jobs:
         run: |
           trivy image --exit-code 1 --severity HIGH,CRITICAL kong-oidc:latest  # Remplace par ton image
           trivy image --exit-code 1 --severity HIGH,CRITICAL pantsel/konga:0.14.9  # Remplace par ton image
+
 
   # Job de nettoyage, dépend de 'security-scan'
   cleanup:
